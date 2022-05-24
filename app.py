@@ -21,6 +21,13 @@ moment = Moment(app)
 app.config.from_object('config')
 db = SQLAlchemy(app)
 
+# Create a variable for the database path
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres1338@localhost:5432/todoapp'
+
+# Hibernate the warnings in the terminal
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+
 # TODO: connect to a local postgresql database
 
 #----------------------------------------------------------------------------#
@@ -511,7 +518,7 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run()
+    app.run(debug = True)
 
 # Or specify port manually:
 '''
