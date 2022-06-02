@@ -60,9 +60,18 @@ app.jinja_env.filters['datetime'] = format_datetime
 # Controllers.
 #----------------------------------------------------------------------------#
 
+
+
+
+
+
 @app.route('/')
 def index():
   return render_template('pages/home.html')
+
+
+
+
 
 
 #  Venues
@@ -241,8 +250,9 @@ def create_venue_submission():
     # Close the database session.
       db.session.close()
   else:
-    flash('Sorry, please ensure that the data corresponds with its respective field; Check your form input and try again.')
-    return render_template('pages/home.html')
+    for field, message in form.errors.items():
+            flash(field + ' - ' + str(message), 'danger')
+    return render_template('forms/new_venue.html', form=form)
   # TODO: on unsuccessful db insert, flash an error instead.
   # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
@@ -330,18 +340,19 @@ def show_artist(artist_id):
     for show in shows:
       if show.start_time > datetime.now():
         upcoming_shows.append({
-            "artist_id": show.artist_id,
-            "artist_name": show.artist.name,
-            "artist_image_link": show.artist.image_link,
+            "venue_id": show.venue_id,
+            "venue_name": show.venue.name,
+            "venue_image_link": show.venue.image_link,
             "start_time": show.start_time.strftime("%m/%d/%Y, %H:%M:%S")
         })
       else:
         past_shows.append({
-            "artist_id": show.artist_id,
-            "artist_name": show.artist.name,
-            "artist_image_link": show.artist.image_link,
+            "venue_id": show.venue_id,
+            "venue_name": show.venue.name,
+            "venue_image_link": show.venue.image_link,
             "start_time": show.start_time.strftime("%m/%d/%Y, %H:%M:%S")
         })
+     
 
         
 
@@ -412,7 +423,8 @@ def edit_artist_submission(artist_id):
     flash('Artist data updated Successfully!!!')
     return redirect(url_for('show_artist', artist_id=artist_id))
   else:
-    flash('Oh no!. Artist could not be updated.')
+    for field, message in form.errors.items():
+            flash(field + ' - ' + str(message), 'danger')
     return redirect(url_for('edit_artist', artist_id=artist_id))
   
   
@@ -468,7 +480,8 @@ def edit_venue_submission(venue_id):
     flash('Venue data updated Successfully!!!')
     return redirect(url_for('show_venue', venue_id=venue_id))
   else:
-    flash('Oh no!. Venue could not be updated.')
+    for field, message in form.errors.items():
+            flash(field + ' - ' + str(message), 'danger')
     return redirect(url_for('edit_venue', venue_id=venue_id))
   
 
@@ -525,8 +538,9 @@ def create_artist_submission():
   #   # Close the database session.
       db.session.close()
   else:
-    flash('Sorry, please ensure that the data corresponds with its respective field; Check your form input and try again.')
-    return render_template('pages/home.html')
+    for field, message in form.errors.items():
+            flash(field + ' - ' + str(message), 'danger')
+    return render_template('forms/new_artist.html', form=form)
  
 
 #  Shows
@@ -582,7 +596,7 @@ def create_show_submission():
   finally:
     db.session.close()
   if error:
-    flash('Oh no!. Show data could not be added.')
+    flash('Oh no!. Show data could not be added; check the form for errors.')
   else:
     flash('Show was successfully listed!')
   # on successful db insert, flash success
@@ -590,6 +604,10 @@ def create_show_submission():
   # e.g., flash('An error occurred. Show could not be listed.')
   # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
   return render_template('pages/home.html')
+
+
+
+
 
 @app.errorhandler(404)
 def not_found_error(error):
